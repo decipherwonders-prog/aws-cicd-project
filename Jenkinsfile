@@ -1,2 +1,11 @@
-# aws-cicd-project
-Let's cook in the cloud !!
+pipeline {
+    agent any
+
+    stages {
+        stage('Test') {
+            steps {
+                echo 'Pipeline is working'
+            }
+        }
+    }
+}
