@@ -1,22 +1,11 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "my-app:${BUILD_NUMBER}"
-        CONTAINER_NAME = "my-app"
-    }
-
     stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
 
         stage('Build Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} ."
+                sh 'docker build -t my-app:${BUILD_NUMBER} .'
             }
         }
 
@@ -28,21 +17,12 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh """
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
-                docker run -d -p 80:3000 --name ${CONTAINER_NAME} ${IMAGE_NAME}
-                """
+                sh '''
+                docker stop my-app || true
+                docker rm my-app || true
+                docker run -d -p 80:3000 --name my-app my-app:${BUILD_NUMBER}
+                '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo "Deployment successful: ${IMAGE_NAME}"
-        }
-        failure {
-            echo "Deployment failed. Check logs."
         }
     }
 }
