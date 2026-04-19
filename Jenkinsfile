@@ -1,30 +1,48 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "my-app:${BUILD_NUMBER}"
+        CONTAINER_NAME = "my-app"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                git 'https://github.com/decipherwonders-prog/aws-cicd-project'
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build Image') {
             steps {
-                echo 'Building application...'
-                // add real build commands here (npm install, mvn package, etc.)
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
+                sh 'echo "Run tests here"'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh """
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
+                docker run -d -p 80:3000 --name ${CONTAINER_NAME} ${IMAGE_NAME}
+                """
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
+        success {
+            echo "Deployment successful: ${IMAGE_NAME}"
+        }
+        failure {
+            echo "Deployment failed. Check logs."
         }
     }
 }
