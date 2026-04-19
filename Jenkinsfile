@@ -1,28 +1,51 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = "us-east-1"
+        ACCOUNT_ID = "596953736819"
+        IMAGE_NAME = "my-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        ECR_REPO = "596953736819.dkr.ecr.us-east-1.amazonaws.com/my-app"
+        ECR_REGISTRY = "596953736819.dkr.ecr.us-east-1.amazonaws.com"
+    }
+
     stages {
 
         stage('Build Image') {
             steps {
-                sh 'docker build -t my-app:${BUILD_NUMBER} .'
+                sh "docker build -t my-app:${IMAGE_TAG} ."
             }
         }
 
-        stage('Test') {
+        stage('Tag Image') {
             steps {
-                sh 'echo "Run tests here"'
+                sh "docker tag my-app:${IMAGE_TAG} my-app:${IMAGE_TAG}"
             }
         }
 
-        stage('Deploy') {
+        stage('Login to ECR') {
             steps {
-                sh '''
-                docker stop my-app || true
-                docker rm my-app || true
-                docker run -d -p 80:3000 --name my-app my-app:${BUILD_NUMBER}
-                '''
+                sh """
+                aws ecr get-login-password --region us-east-1 | \
+                docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                """
             }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh "docker push my-app:${IMAGE_TAG}"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Image pushed: my-app:${IMAGE_TAG}"
+        }
+        failure {
+            echo "Push failed. Check logs."
         }
     }
 }
