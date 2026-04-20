@@ -20,7 +20,7 @@ pipeline {
 
         stage('Tag Image') {
             steps {
-                sh "docker tag my-app:20 596953736819.dkr.ecr.us-east-1.amazonaws.com/my-app:20"
+            sh "docker tag my-app:${IMAGE_TAG} 596953736819.dkr.ecr.us-east-1.amazonaws.com/my-app:${IMAGE_TAG}"
             }
         }
 
@@ -35,7 +35,7 @@ pipeline {
 
         stage('Push Image') {
             steps {
-                sh "docker push my-app:${IMAGE_TAG}"
+                sh "docker push 596953736819.dkr.ecr.us-east-1.amazonaws.com/my-app:${IMAGE_TAG}"
             }
         }
     }
