@@ -12,12 +12,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/decipherwonders-prog/aws-cicd-project.git'
-            }
-        }
-
          stage('Debug Workspace') {
             steps {
                 sh 'pwd'
