@@ -17,5 +17,12 @@ pipeline {
                 sh 'docker build -t my-app:latest .'
             }
         }
+
+        stage('Test Container Run') {
+            steps {
+                sh 'docker run --rm my-app:latest node server.js'
+            }
+        }
+
     }
 }
