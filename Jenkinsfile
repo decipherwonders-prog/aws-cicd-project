@@ -12,6 +12,19 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/decipherwonders-prog/aws-cicd-project.git'
+            }
+        }
+
+         stage('Debug Workspace') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+            }
+        }
+        
         stage('Build Image') {
             steps {
                 sh "docker build -t my-app:${IMAGE_TAG} ."
